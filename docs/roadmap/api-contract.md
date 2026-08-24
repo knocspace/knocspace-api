@@ -31,7 +31,7 @@ export type PageSummary = z.infer<typeof PageSummary>;
 | 기본 경로 | `/api/v1` |
 | 형식 | JSON. 요청·응답 모두 `application/json` |
 | 날짜 | ISO-8601 UTC, `Z` 로 끝남 (`2026-08-24T01:23:45.678Z`) |
-| id | 문자열. 서버가 형식을 강제하지 않고 길이만 제한 (1~64자) |
+| id | 문자열. 클라이언트가 만들어 보냅니다. 서버는 형식을 강제하지 않고 `[A-Za-z0-9_-]{1,64}` 만 확인합니다 |
 | 인증 | `Authorization: Bearer <accessToken>` (B4부터) |
 | 요청 추적 | 모든 응답에 `x-request-id` |
 
@@ -72,18 +72,21 @@ export type PageSummary = z.infer<typeof PageSummary>;
 
 `B` 열은 어느 스프린트에서 생기는지입니다.
 
-### 페이지 — B2
+### 페이지 — B1·B2
 
 | 메서드 | 경로 | 요청 | 응답 | B |
 |---|---|---|---|---|
-| GET | `/pages/tree` | — | `PageSummary[]` | B2 |
-| GET | `/pages/:id` | — | `Page` | B2 |
-| POST | `/pages` | `CreatePageInput` | `201 Page` | B2 |
+| GET | `/pages` | — | `PageSummary[]` | B1 |
+| GET | `/pages/:id` | — | `Page` | B1 |
+| POST | `/pages` | `CreatePageInput` | `201 Page` | B1 |
 | PATCH | `/pages/:id` | `UpdatePageInput` (+ `If-Match`) | `Page` | B2·B3 |
 | DELETE | `/pages/:id` | — | `204` | B2 |
 
-- `GET /pages/tree` 는 `deletedAt`이 있는 페이지를 **빼고** 돌려줍니다. 정렬은 `(parentId, position, id)`
+- `GET /pages` 는 `deletedAt`이 있는 페이지를 **빼고** 돌려줍니다. 정렬은 `(parentId, position, id)`
+  - 응답은 중첩 트리가 아니라 **평평한 배열**입니다. 트리로 조립하는 건 프론트가 합니다
+  - 쿼리 파라미터는 없습니다. 부분 로딩(`?parentId=`)이나 휴지통(`?deleted=`)이 필요해지면 **같은 경로에 조건을 붙입니다.** 목록마다 경로를 새로 파지 않습니다
 - `POST /pages` 는 `input.id`가 이미 있으면 새로 만들지 않고 **기존 페이지를 그대로 돌려줍니다**(멱등). 자동 저장 중 재시도가 페이지를 두 개 만들면 안 됩니다
+  - 이 조회도 **내 워크스페이스 안에서만** 합니다(B4부터). 남의 워크스페이스 id를 찍어 보낸 요청에 그 페이지를 돌려주면 남의 문서가 그대로 나갑니다
 - `PATCH`는 **본문에 있는 필드만** 바꿉니다. `"parentId": null`은 "최상위로 옮기기", 필드가 아예 없으면 "안 건드림"입니다
 - `DELETE`는 `deletedAt`만 채웁니다. 실제로 지우는 것은 `/purge`(B5)입니다
 
@@ -106,13 +109,19 @@ export type PageSummary = z.infer<typeof PageSummary>;
 | `POST /uploads` · `POST /uploads/:id/complete` | B6 |
 | `/databases/*` · `POST /databases/:id/rows/query` | B7 |
 | `WS /collab?room=page:{id}` | B8 |
+| `POST /workspaces` · `PATCH /workspaces/:id` · `DELETE /workspaces/:id` | 회원가입이 생길 때 |
+
+워크스페이스를 만드는 경로가 B4에도 없는 이유는 [B4 — 워크스페이스를 만드는 API는 B4에 없습니다](sprint-4.md#워크스페이스를-만드는-api는-b4에-없습니다)에 적었습니다. 프론트에 워크스페이스를 만드는 화면이 생기면 그때 이 표에서 위로 올리고 모양을 정합니다.
+
+여기 경로는 **아직 확정이 아닙니다.** 특히 휴지통 세 개는 B5를 시작할 때 `GET /pages?deleted=true` 쪽으로 맞출지 그때 정합니다 — 쓰는 화면이 없는 지금 정하면 근거가 없습니다.
 
 ### 운영
 
-| 경로 | 내용 |
-|---|---|
-| `GET /health` | 프로세스가 살아 있는지. DB를 건드리지 않습니다 |
-| `GET /ready` | DB 연결까지 확인. 배포 시 트래픽 투입 판단용 |
+| 경로 | 내용 | B |
+|---|---|---|
+| `GET /health` | 프로세스가 살아 있는지. DB를 건드리지 않습니다 | B0 |
+| `GET /docs` · `GET /docs/json` | Swagger UI와 OpenAPI 문서. `contract/` 스키마에서 생성합니다 | B1 |
+| `GET /ready` | DB 연결까지 확인. 배포 시 트래픽 투입 판단용 | 배포가 생길 때 |
 
 ---
 

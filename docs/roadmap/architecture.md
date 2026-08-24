@@ -126,15 +126,16 @@ Workspace  1 ── n  Page  ── self(parentId)
 | `Page.id` | 클라이언트가 만든 문자열을 그대로 PK로 씁니다 |
 | `Page.content` | `Jsonb`. 서버는 열어보지 않습니다 |
 | `Page.version` | 저장할 때마다 +1 |
-| `Page.deletedAt` | soft delete. 조회는 전부 이 조건이 붙습니다 |
+| `Page.deletedAt` | soft delete. 조회는 전부 이 조건이 붙습니다 (B2부터) |
 | `Page.position` | `Float`. 재배치 규칙은 [계약 문서](api-contract.md#3-position-은-소수를-계속-끼워넣을-수-없습니다) |
 
-필요한 인덱스는 두 개로 시작합니다. 트리 조회와 휴지통 조회가 전부 여기를 탑니다.
+인덱스는 **지금 도는 쿼리가 타는 것 하나**로 시작합니다. 목록 조회의 정렬 순서입니다.
 
 ```prisma
 @@index([workspaceId, parentId, position])
-@@index([workspaceId, deletedAt])
 ```
+
+더 붙이는 건 [성능 목표](#성능-목표)를 실제로 못 맞추는 게 확인된 뒤입니다. `CREATE INDEX`는 언제든 한 줄이고, 안 타는 인덱스는 쓰기만 느리게 합니다.
 
 **스키마의 자세한 필드는 여기 적지 않습니다.** `prisma/schema.prisma`가 유일한 출처입니다.
 
@@ -188,7 +189,7 @@ Fastify 기본 로거(pino)를 씁니다. 별도 도구는 안 넣습니다.
 
 | 항목 | 목표 |
 |---|---|
-| `GET /pages/tree` (1000행) | p95 200ms |
+| `GET /pages` (1000행) | p95 200ms |
 | `GET /pages/:id` | p95 100ms |
 | `PATCH /pages/:id` (100KB 본문) | p95 150ms |
 | 자동 저장 지속 (800ms 간격 × 10분) | 실패 0, 지연 증가 없음 |
