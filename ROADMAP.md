@@ -32,8 +32,8 @@ Fastify가 뜨고 `/health`가 응답합니다. **그게 전부입니다.** DB �
 
 | 백엔드 | 늦어도 이때까지 | 이유 |
 |---|---|---|
-| B1 (계약) | **F4 종료 전** | F4 마지막 항목이 "`types/api.ts`를 백엔드와 맞춰 확정" 입니다 |
-| B2·B3 (페이지·저장) | F9 시작 전 | F9에서 mock을 걷어냅니다 |
+| B1 (계약 + 페이지 생성·조회) | **F4 종료 전** | F4 마지막 항목이 "`types/api.ts`를 백엔드와 맞춰 확정" 입니다 |
+| B2·B3 (수정·이동·삭제·저장) | F9 시작 전 | F9에서 mock을 걷어냅니다 |
 | B4 (인증·권한) | F9 시작 전 | F9에 로그인·공유·읽기 전용이 들어 있습니다 |
 | B5·B6·B7 | 해당 도메인 전환 시점 | 아래 [전환 리스크](docs/roadmap/conventions.md#리스크) 참고 |
 | B8 (협업 서버) | F10 시작 전 | F10 선행 조건이 "백엔드 WebSocket 서버" 입니다 |
@@ -47,8 +47,8 @@ Fastify가 뜨고 `/health`가 응답합니다. **그게 전부입니다.** DB �
 | # | 이름 | 끝나면 되는 것 | 상태 |
 |---|---|---|---|
 | B0 | 서버 뼈대 | `/health`가 응답 | ✅ 완료 |
-| [B1](docs/roadmap/sprint-1.md) | 스키마와 계약 고정 | (프론트에 보이는 변화 없음) | ▶ 다음 |
-| [B2](docs/roadmap/sprint-2.md) | 페이지 CRUD | 프론트 `api/pages.ts` mock을 대체 |  |
+| [B1](docs/roadmap/sprint-1.md) | 페이지 만들기와 보기 | 페이지를 만들고 · 트리에 그리고 · 열어봄 | ▶ 다음 |
+| [B2](docs/roadmap/sprint-2.md) | 페이지 고치고 옮기고 지우기 | 프론트 `api/pages.ts` mock을 전부 대체 |  |
 | [B3](docs/roadmap/sprint-3.md) | 저장과 충돌 | 자동 저장이 실서버로 붙음 |  |
 | [B4](docs/roadmap/sprint-4.md) | 인증과 권한 | 로그인해서 워크스페이스를 나눠 씀 |  |
 | [B5~B8](docs/roadmap/later-sprints.md) | 검색 · 파일 · DB · 협업 | 아래 표 참고 |  |
