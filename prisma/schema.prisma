@@ -11,3 +11,36 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pages Page[]
+}
+
+model Page {
+  id          String    @id
+  workspaceId String
+  parentId    String?
+  title       String    @default("")
+  icon        String?
+  content     Json
+  position    Float
+  version     Int       @default(1)
+  // User 관계는 B4. 지금은 문자열 컬럼만 두고 시드는 "local-user" 를 넣습니다
+  createdBy   String
+  updatedBy   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parent    Page?     @relation("PageChildren", fields: [parentId], references: [id], onDelete: Restrict)
+  children  Page[]    @relation("PageChildren")
+
+  @@index([workspaceId, parentId, position])
+  @@index([workspaceId, deletedAt])
+}
