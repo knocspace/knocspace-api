@@ -1,0 +1,13 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/src/generated/prisma
+
+dist
+*.log
+
+# 에이전트 스킬 링크. 절대경로 심볼릭 링크라 다른 컴퓨터에서 깨집니다.
+# 원본은 .agents/ 에 있고, 링크는 각 도구가 다시 만듭니다.
+.claude/
+.windsurf/
