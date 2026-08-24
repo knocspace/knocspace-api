@@ -53,7 +53,7 @@ auth/  search/  files/  databases/  collab/
 
 ## 지켜야 할 경계
 
-이 표가 지켜지면 B8에서 저장 방식이 바뀌어도 라우트를 안 고칩니다.
+이 표가 지켜지면 B9에서 저장 방식이 바뀌어도 라우트를 안 고칩니다.
 
 | 레이어 | 아는 것 | 몰라야 하는 것 |
 |---|---|---|
@@ -151,7 +151,7 @@ Workspace  1 ── n  Page  ── self(parentId)
 | `PORT` · `NODE_ENV` | | B1 |
 | `CORS_ORIGINS` | 쉼표 구분 | B1 |
 | `JWT_SECRET` · `REFRESH_SECRET` | | B4 |
-| `S3_*` | 파일 저장소 | B6 |
+| `S3_*` | 파일 저장소 | B8 |
 
 `.env.example`에는 **무엇을 채워야 하는지만** 적습니다. 실제 값은 절대 커밋하지 않습니다.
 

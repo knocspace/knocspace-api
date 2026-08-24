@@ -43,7 +43,7 @@ export type PageSummary = z.infer<typeof PageSummary>;
 { "id": "p_a1", "title": "회의록", "version": 3, ... }
 ```
 
-목록은 배열 그대로입니다. 페이지네이션이 필요해지는 곳(B5 검색, B7 행 조회)만 `{ items, nextCursor }`를 씁니다.
+목록은 배열 그대로입니다. 페이지네이션이 필요해지는 곳(B6 행 조회, B7 검색)만 `{ items, nextCursor }`를 씁니다.
 
 ### 에러 응답
 
@@ -88,7 +88,7 @@ export type PageSummary = z.infer<typeof PageSummary>;
 - `POST /pages` 는 `input.id`가 이미 있으면 새로 만들지 않고 **기존 페이지를 그대로 돌려줍니다**(멱등). 자동 저장 중 재시도가 페이지를 두 개 만들면 안 됩니다
   - 이 조회도 **내 워크스페이스 안에서만** 합니다(B4부터). 남의 워크스페이스 id를 찍어 보낸 요청에 그 페이지를 돌려주면 남의 문서가 그대로 나갑니다
 - `PATCH`는 **본문에 있는 필드만** 바꿉니다. `"parentId": null`은 "최상위로 옮기기", 필드가 아예 없으면 "안 건드림"입니다
-- `DELETE`는 `deletedAt`만 채웁니다. 실제로 지우는 것은 `/purge`(B5)입니다
+- `DELETE`는 `deletedAt`만 채웁니다. 실제로 지우는 것은 `/purge`(B7)입니다
 
 ### 인증 — B4
 
@@ -104,16 +104,17 @@ export type PageSummary = z.infer<typeof PageSummary>;
 
 | 경로 | B |
 |---|---|
-| `GET /pages/trash` · `POST /pages/:id/restore` · `DELETE /pages/:id/purge` | B5 |
-| `GET /search?q=&scope=&limit=` | B5 |
-| `POST /uploads` · `POST /uploads/:id/complete` | B6 |
-| `/databases/*` · `POST /databases/:id/rows/query` | B7 |
-| `WS /collab?room=page:{id}` | B8 |
+| `/databases/*` — `Database` `Property` `Row` CRUD | B5 |
+| `POST /databases/:id/rows/query` | B6 |
+| `GET /pages/trash` · `POST /pages/:id/restore` · `DELETE /pages/:id/purge` | B7 |
+| `GET /search?q=&scope=&limit=` | B7 |
+| `POST /uploads` · `POST /uploads/:id/complete` | B8 |
+| `WS /collab?room=page:{id}` | B9 |
 | `POST /workspaces` · `PATCH /workspaces/:id` · `DELETE /workspaces/:id` | 회원가입이 생길 때 |
 
 워크스페이스를 만드는 경로가 B4에도 없는 이유는 [B4 — 워크스페이스를 만드는 API는 B4에 없습니다](sprint-4.md#워크스페이스를-만드는-api는-b4에-없습니다)에 적었습니다. 프론트에 워크스페이스를 만드는 화면이 생기면 그때 이 표에서 위로 올리고 모양을 정합니다.
 
-여기 경로는 **아직 확정이 아닙니다.** 특히 휴지통 세 개는 B5를 시작할 때 `GET /pages?deleted=true` 쪽으로 맞출지 그때 정합니다 — 쓰는 화면이 없는 지금 정하면 근거가 없습니다.
+여기 경로는 **아직 확정이 아닙니다.** 특히 휴지통 세 개는 B7을 시작할 때 `GET /pages?deleted=true` 쪽으로 맞출지 그때 정합니다 — 쓰는 화면이 없는 지금 정하면 근거가 없습니다.
 
 ### 운영
 
@@ -150,7 +151,7 @@ export type PageSummary = z.infer<typeof PageSummary>;
 
 두 형제 사이 중간값을 반복해서 넣으면 `float64`는 **50번 안쪽에서 두 값이 같아집니다.** 트리 드래그 이동(F5)에서 실제로 발생합니다.
 
-**`Float` 그대로 갑니다.** 문자열 fractional index([참고](https://liveblocks.io/blog/how-crdts-and-sync-engines-keep-realtime-lists-ordered-with-fractional-indexing))는 여러 사람이 **동시에** 같은 리스트를 재배치해도 충돌 없이 병합되게 하는 CRDT 해법입니다. 지금은 F5가 단일 사용자 드래그 이동이라 그 문제 자체가 없고, KISS·YAGNI 원칙상 아직 없는 동시 편집 요구를 미리 설계하지 않습니다. B8에서 실시간 협업 편집이 붙을 때, 페이지 순서도 동시에 바뀌는 시나리오가 실제로 생기면 그때 다시 판단합니다.
+**`Float` 그대로 갑니다.** 문자열 fractional index([참고](https://liveblocks.io/blog/how-crdts-and-sync-engines-keep-realtime-lists-ordered-with-fractional-indexing))는 여러 사람이 **동시에** 같은 리스트를 재배치해도 충돌 없이 병합되게 하는 CRDT 해법입니다. 지금은 F8이 단일 사용자 드래그 이동이라 그 문제 자체가 없고, KISS·YAGNI 원칙상 아직 없는 동시 편집 요구를 미리 설계하지 않습니다. B9에서 실시간 협업 편집이 붙을 때, 페이지 순서도 동시에 바뀌는 시나리오가 실제로 생기면 그때 다시 판단합니다.
 
 1. `Float` 유지. 새 위치는 앞뒤 평균. 형제가 없으면 `1024`, 맨 뒤면 `마지막 + 1024`
 2. 앞뒤 간격이 `1e-6` 미만이면 그 부모의 형제 전체를 `1024` 간격으로 다시 매깁니다(rebalance)
@@ -177,11 +178,11 @@ export type PageSummary = z.infer<typeof PageSummary>;
 | `title` 최대 길이 | 512자. 넘으면 자르지 않고 `400` |
 | `BlockDoc.schemaVersion` | 서버는 값만 저장하고 해석하지 않습니다. 모르는 값이어도 거절하지 않습니다 |
 | `hasChildren` | 삭제되지 않은 자식이 1개 이상 있는지 |
-| `PageSummary.icon` | B6 전까지 항상 `null`. 필드는 지금부터 있습니다 |
-| `User.color` | 가입 시 고정 팔레트에서 배정. B8 커서 색으로 그대로 씁니다 |
-| 트리 응답 상한 | 워크스페이스당 5000행. 넘으면 B5에서 지연 로딩으로 바꿉니다 |
+| `PageSummary.icon` | B8 전까지 항상 `null`. 필드는 지금부터 있습니다 |
+| `User.color` | 가입 시 고정 팔레트에서 배정. B9 커서 색으로 그대로 씁니다 |
+| 트리 응답 상한 | 워크스페이스당 5000행. 넘으면 B7에서 지연 로딩으로 바꿉니다 |
 
-**노션 실측 대비** — 노션 공개 API는 리치 텍스트 블록당 2,000자·요청당 최대 100블록(≈200KB)으로 제한합니다. `content` 1MB, `title` 512자는 그보다 넉넉하게 잡은 값입니다. 트리 응답 상한만 다른 방향인데, 노션은 사이드바를 **처음부터 지연 로딩**해서 전체 트리를 한 번에 안 가져오지만, 지금은 사이드바 컴포넌트를 다시 짜야 하는 비용 때문에 5000행까지는 한 번에 가져오는 단순한 방식을 쓰고 B5에서 지연 로딩으로 전환하기로 미뤘습니다.
+**노션 실측 대비** — 노션 공개 API는 리치 텍스트 블록당 2,000자·요청당 최대 100블록(≈200KB)으로 제한합니다. `content` 1MB, `title` 512자는 그보다 넉넉하게 잡은 값입니다. 트리 응답 상한만 다른 방향인데, 노션은 사이드바를 **처음부터 지연 로딩**해서 전체 트리를 한 번에 안 가져오지만, 지금은 사이드바 컴포넌트를 다시 짜야 하는 비용 때문에 5000행까지는 한 번에 가져오는 단순한 방식을 쓰고 B7에서 지연 로딩으로 전환하기로 미뤘습니다.
 
 ---
 
