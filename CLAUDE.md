@@ -38,7 +38,8 @@ repo     Prisma 쿼리             → 도메인 규칙 금지
 lib      순수 함수               → 전부 모름
 ```
 
-`process.env`는 `src/config.ts`에서만 읽는다.
+`process.env`는 `src/config.ts`와 `src/env-file.ts`에서만 읽는다.
+`env-file.ts`는 어떤 `.env.*` 파일을 읽을지 고르려고 `APP_ENV` 하나만 본다.
 서비스가 상태 코드를 정하고 싶으면 `AppError`를 던지고 error-handler가 번역한다.
 
 ## 구조
@@ -50,6 +51,7 @@ src/
 ├── modules/    도메인별 routes + service + repo
 ├── lib/        순수 함수
 ├── db/         PrismaClient
+├── env-file.ts APP_ENV 로 .env.* 고르기
 ├── config.ts   env 검증
 └── app.ts      Fastify 조립. server.ts는 부팅만
 ```

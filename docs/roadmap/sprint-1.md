@@ -34,10 +34,13 @@
 
 ### 1. 로컬 DB (1시간 30분)
 
-- [ ] `docker-compose.yml` — Postgres 17, 포트 5432, 볼륨 하나
-- [ ] `.env.example`은 이미 맞습니다. `PORT` `NODE_ENV` `CORS_ORIGINS` 추가
-- [ ] `npm i -D dotenv` — `prisma.config.ts`가 `dotenv/config`를 import 하는데 `package.json`에 없습니다. 지금은 다른 패키지에 딸려 온 것으로 우연히 돌고 있어서, 그 패키지가 바뀌면 깨집니다
-- [ ] `package.json` 스크립트
+- [x] `docker-compose.yml` — Postgres 17, 포트 5432, 볼륨 하나
+- [x] `.env.example` — **키 이름만** 적습니다. 값은 넣지 않습니다 (`DATABASE_URL=` 처럼). `PORT` `NODE_ENV` `CORS_ORIGINS` 포함
+- [x] 실제 값은 `.env.local` 에 넣습니다. 커밋하지 않습니다
+- [x] `.gitignore` 를 `.env*` + `!.env.example` 로 — 앞으로 만들 `.env.test` `.env.prod` 도 자동으로 빠집니다
+- [x] `src/env-file.ts` — 읽을 파일을 `APP_ENV` 로 고릅니다
+- [x] `npm i -D dotenv` — `prisma.config.ts`가 `dotenv/config`를 import 하는데 `package.json`에 없습니다. 지금은 다른 패키지에 딸려 온 것으로 우연히 돌고 있어서, 그 패키지가 바뀌면 깨집니다
+- [x] `package.json` 스크립트
 
 ```
 db:up      docker compose up -d
@@ -46,7 +49,7 @@ db:studio  prisma studio
 db:seed    tsx prisma/seed.ts
 ```
 
-**확인** — 저장소를 새로 clone 해서 `db:up` → `db:migrate` → `dev` 세 줄로 서버가 뜨는지 직접 해봅니다.
+**확인** — 저장소를 새로 clone 해서 `cp .env.example .env.local` 로 값을 채운 뒤, `db:up` → `db:migrate` → `dev` 세 줄로 서버가 뜨는지 직접 해봅니다.
 
 ### 2. 계약 정하기 (3시간) ★ 이 스프린트의 핵심
 
@@ -85,7 +88,7 @@ export type Page = z.infer<typeof Page>;
 
 - [ ] `src/app.ts` — `buildApp()`이 Fastify 인스턴스를 만들어 돌려줍니다. **listen 하지 않습니다**
 - [ ] `src/server.ts` — `buildApp()` → `listen` → 종료 신호 처리(`SIGTERM`에 DB 연결 정리)
-- [ ] `src/config.ts` — zod로 env 검증. 없으면 부팅 실패
+- [ ] `src/config.ts` — `loadEnvFile()` 을 부르고 zod로 env 검증. 없으면 부팅 실패
 - [ ] `plugins/prisma.ts` · `plugins/request-id.ts` · `plugins/error-handler.ts`
 - [ ] CORS를 `config.corsOrigins`에서 읽게 (지금 `server.ts`에 하드코딩돼 있습니다)
 - [ ] `GET /ready` 추가 — `SELECT 1`까지 확인
@@ -114,7 +117,7 @@ export type Page = z.infer<typeof Page>;
 ### 7. 테스트 환경 (2시간)
 
 - [ ] `npm i -D @vitest/coverage-v8` · `vitest.config.ts`
-- [ ] 테스트용 DB — 별도 데이터베이스 이름(`knocspace_test`) + `.env.test`
+- [ ] 테스트용 DB — 별도 데이터베이스 이름(`knocspace_test`) + `.env.test`. `APP_ENV=test` 로 고릅니다. 데이터베이스는 `prisma migrate` 가 없으면 직접 만드니 따로 만들 필요 없습니다
 - [ ] `src/test/db.ts` — 각 테스트 전에 테이블 truncate
 - [ ] `src/test/app.ts` — `buildApp()`을 감싼 헬퍼
 - [ ] `package.json`에 `"test": "vitest"`, `"test:run": "vitest run"`
@@ -147,9 +150,9 @@ docs: README 와 CLAUDE.md
 ## 완료 조건
 
 - [ ] `npm run typecheck` · `npm run build` · `npm run test:run` 세 개 통과
-- [ ] clone 한 새 폴더에서 명령 세 줄로 서버가 뜬다
+- [ ] clone 한 새 폴더에서 `.env.local` 을 채운 뒤 명령 세 줄로 서버가 뜬다
 - [ ] 모든 오류 응답이 `{ error: { code, message } }` 한 모양이다 — 404, 400, 500 전부
-- [ ] `src/config.ts` 밖에서 `process.env`를 부르는 곳 0개
+- [ ] `src/config.ts` 와 `src/env-file.ts` 밖에서 `process.env`를 부르는 곳 0개 (`env-file.ts` 는 어떤 파일을 읽을지 고르려고 `APP_ENV` 하나만 봅니다)
 - [ ] `pages.routes.ts` 안에 `prisma.` 0개
 - [ ] `src/contract/`를 프론트에 그대로 넘길 수 있다
 - [ ] **프론트 `types/api.ts`와 필드 이름·널 허용·선택 여부가 100% 일치한다** — 표로 한 줄씩 대조
