@@ -1,20 +1,32 @@
-import Fastify from 'fastify';
-import cors from '@fastify/cors';
+import { buildApp } from './app.js';
+import { config } from './config.js';
 
-const app = Fastify({ logger: true });
+/**
+ * 부팅만 합니다. 여기엔 로직이 없습니다.
+ *
+ * 무엇을 붙일지는 app.ts, 값이 맞는지는 config.ts 가 이미 정했습니다.
+ * 이 파일이 하는 일은 포트를 열고 닫는 것뿐입니다.
+ */
+const app = await buildApp();
 
-// 프론트(vite dev 서버)에서 부를 수 있게 열어둡니다
-await app.register(cors, { origin: ['http://localhost:5173'] });
+// app.close() 가 Fastify onClose 훅을 돕니다.
+// DB 커넥션 정리는 plugins/prisma.ts 가 그 훅에 붙습니다
+const shutdown = (signal: string) => {
+  app.log.info({ signal }, '종료합니다');
+  void app
+    .close()
+    .then(() => process.exit(0))
+    .catch((error: unknown) => {
+      app.log.error(error);
+      process.exit(1);
+    });
+};
 
-app.get('/health', async () => ({
-  status: 'ok',
-  uptime: process.uptime(),
-}));
-
-const port = Number(process.env.PORT ?? 3000);
+process.once('SIGTERM', () => shutdown('SIGTERM'));
+process.once('SIGINT', () => shutdown('SIGINT'));
 
 try {
-  await app.listen({ port, host: '127.0.0.1' });
+  await app.listen({ port: config.port, host: '127.0.0.1' });
 } catch (error) {
   app.log.error(error);
   process.exit(1);
