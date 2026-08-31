@@ -132,14 +132,17 @@ export type Page = z.infer<typeof Page>;
 
 ## 4. 앱 뼈대 → `app.ts` · `config.ts` · `plugins/`
 
-- [ ] `src/app.ts` — `buildApp()`이 Fastify 인스턴스를 돌려줍니다. **listen 하지 않습니다**
-- [ ] `src/server.ts` — `buildApp()` → `listen` → `SIGTERM`에 DB 연결 정리
-- [ ] `src/config.ts` — `loadEnvFile()` 부르고 zod로 env 검증. 없으면 부팅 실패
-- [ ] `plugins/prisma.ts` · `plugins/request-id.ts` (`x-request-id` 발급·전파)
-- [ ] CORS를 `config.corsOrigins`에서 (지금 `server.ts`에 하드코딩돼 있습니다)
+- [x] `src/app.ts` — `buildApp()`이 Fastify 인스턴스를 돌려줍니다. **listen 하지 않습니다**
+- [x] `src/server.ts` — `buildApp()` → `listen` → `SIGTERM`·`SIGINT`에 `app.close()`
+- [x] `src/config.ts` — `loadEnvFile()` 부르고 zod로 env 검증. 없으면 부팅 실패
+- [x] CORS를 `config.corsOrigins`에서
+- [ ] `plugins/prisma.ts` — DB 연결 정리를 `onClose` 훅에 붙입니다 (`server.ts`가 부르는 `app.close()`가 이 훅을 돕니다)
+- [ ] `plugins/request-id.ts` — `x-request-id` 발급·전파
 - [ ] `src/local-defaults.ts` — `LOCAL_WORKSPACE_ID` · `LOCAL_USER_ID`(`local-user`)
 
 > **`app.ts`를 나누는 이유는 테스트입니다.** 통합 테스트가 서버를 안 띄우고 `app.inject()`로 요청합니다.
+>
+> `npm run dev`부터 `listen`까지 무엇이 어떤 순서로 불리는지는 [Fastify 서버가 뜨는 과정](../fastify-startup.md)에 적어 두었습니다.
 >
 > **`local-defaults.ts`가 있는 이유** — 인증이 B4라 지금은 워크스페이스와 사용자를 고를 방법이 없습니다. env로 빼지 않고 상수 파일 하나에 둡니다. B4에서 이 파일을 지우면 임시 분기가 남김없이 사라집니다([B4](sprint-4.md)에 그 항목이 있습니다).
 
@@ -227,9 +230,10 @@ export type Page = z.infer<typeof Page>;
 - [ ] 커밋 나누기
 
 ```
-feat: 데이터 모델과 첫 마이그레이션
+feat: Page 와 Workspace 데이터 모델          ← 완료
+refactor: 앱 조립과 부팅 분리                ← 완료
 feat: 프론트와 합의한 페이지 계약 스키마
-refactor: 앱 조립과 부팅 분리
+feat: 첫 마이그레이션과 시드
 feat: 통일된 에러 처리
 feat: 페이지 생성과 조회
 feat: contract 스키마로 OpenAPI 문서 생성
