@@ -73,9 +73,9 @@ src/
 ├── contract/page.ts     ← 2  위 모델과 1:1인 zod
 ├── contract/index.ts    ← 2  밖으로 나가는 유일한 출구
 ├── db/prisma.ts         ← 3  PrismaClient 인스턴스 하나
+├── local-defaults.ts    ← 3  LOCAL_WORKSPACE_ID · LOCAL_USER_ID. B4에서 삭제
 ├── config.ts            ← 4  env 검증
 ├── app.ts               ← 4  buildApp(). listen 안 함
-├── local-defaults.ts    ← 4  LOCAL_WORKSPACE_ID · LOCAL_USER_ID. B4에서 삭제
 ├── plugins/             ← 4·5·7  prisma · request-id · error-handler · swagger
 ├── lib/AppError.ts      ← 5
 ├── lib/position.ts      ← 6  nextPosition 하나
@@ -124,11 +124,18 @@ export type Page = z.infer<typeof Page>;
 
 ## 3. DB에 올리기 → `migrations/` · `seed.ts` · `db/prisma.ts`
 
-- [ ] `prisma migrate dev --name init`
-- [ ] `src/db/prisma.ts` — 어댑터를 물린 `PrismaClient` 인스턴스 **하나**
-- [ ] `prisma/seed.ts` — 워크스페이스 1개. id는 `local-defaults.ts`의 상수
+- [x] `prisma migrate dev --name init` → `20260831115805_init`
+- [x] `src/db/prisma.ts` — 어댑터를 물린 `PrismaClient` 인스턴스 **하나**
+- [x] `src/local-defaults.ts` — `LOCAL_WORKSPACE_ID` · `LOCAL_USER_ID`(`local-user`). 시드가 써서 4번에서 당겨왔습니다
+- [x] `prisma/seed.ts` — 워크스페이스 1개. id는 `local-defaults.ts`의 상수
 
 > 인스턴스를 하나만 두는 이유 — 여러 번 `new` 하면 커넥션 풀이 그만큼 생깁니다.
+>
+> **`local-defaults.ts`가 있는 이유** — 인증이 B4라 지금은 워크스페이스와 사용자를 고를 방법이 없습니다. env로 빼지 않고 상수 파일 하나에 둡니다. B4에서 이 파일을 지우면 임시 분기가 남김없이 사라집니다([B4](sprint-4.md)에 그 항목이 있습니다).
+>
+> 시드를 `prisma.config.ts`에 걸지 않았습니다 — 완료 조건이 네 줄이라 `db:seed`가 언제 도는지 보이는 쪽을 택했습니다. 필요해지면 한 줄입니다.
+>
+> 옛 `init`이 DB에만 남아 있어 `migrate reset`으로 비우고 다시 만들었습니다. 적용된 마이그레이션 폴더는 지우지 않습니다 — DB의 `_prisma_migrations` 기록과 짝입니다.
 
 ## 4. 앱 뼈대 → `app.ts` · `config.ts` · `plugins/`
 
@@ -138,13 +145,12 @@ export type Page = z.infer<typeof Page>;
 - [x] CORS를 `config.corsOrigins`에서
 - [ ] `plugins/prisma.ts` — DB 연결 정리를 `onClose` 훅에 붙입니다 (`server.ts`가 부르는 `app.close()`가 이 훅을 돕니다)
 - [ ] `plugins/request-id.ts` — `x-request-id` 발급·전파
-- [ ] `src/local-defaults.ts` — `LOCAL_WORKSPACE_ID` · `LOCAL_USER_ID`(`local-user`)
 
 > **`app.ts`를 나누는 이유는 테스트입니다.** 통합 테스트가 서버를 안 띄우고 `app.inject()`로 요청합니다.
 >
 > `npm run dev`부터 `listen`까지 무엇이 어떤 순서로 불리는지는 [Fastify 서버가 뜨는 과정](../fastify-startup.md)에 적어 두었습니다.
 >
-> **`local-defaults.ts`가 있는 이유** — 인증이 B4라 지금은 워크스페이스와 사용자를 고를 방법이 없습니다. env로 빼지 않고 상수 파일 하나에 둡니다. B4에서 이 파일을 지우면 임시 분기가 남김없이 사라집니다([B4](sprint-4.md)에 그 항목이 있습니다).
+> `local-defaults.ts`는 3번에서 만들었습니다 — 시드가 그 상수를 먼저 필요로 했습니다.
 
 ## 5. 에러를 한 모양으로 → `lib/AppError.ts` · `plugins/error-handler.ts`
 
