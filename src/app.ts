@@ -1,6 +1,9 @@
+import { randomUUID } from 'node:crypto';
 import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import { config } from './config.js';
+import { registerPrisma } from './plugins/prisma.js';
+import { registerRequestId } from './plugins/request-id.js';
 
 /**
  * Fastify 인스턴스를 조립해서 돌려줍니다. 여기서 listen 하지 않습니다.
@@ -16,7 +19,13 @@ export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
     // 테스트 로그는 끕니다. 실패한 테스트가 로그에 묻힙니다
     logger: config.nodeEnv !== 'test',
+    // 들어온 x-request-id 를 요청 id 로 씁니다. 없으면 genReqId 가 만듭니다
+    requestIdHeader: 'x-request-id',
+    genReqId: () => randomUUID(),
   });
+
+  registerRequestId(app);
+  registerPrisma(app);
 
   await app.register(cors, { origin: config.corsOrigins });
 

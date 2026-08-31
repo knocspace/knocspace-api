@@ -143,8 +143,8 @@ export type Page = z.infer<typeof Page>;
 - [x] `src/server.ts` — `buildApp()` → `listen` → `SIGTERM`·`SIGINT`에 `app.close()`
 - [x] `src/config.ts` — `loadEnvFile()` 부르고 zod로 env 검증. 없으면 부팅 실패
 - [x] CORS를 `config.corsOrigins`에서
-- [ ] `plugins/prisma.ts` — DB 연결 정리를 `onClose` 훅에 붙입니다 (`server.ts`가 부르는 `app.close()`가 이 훅을 돕니다)
-- [ ] `plugins/request-id.ts` — `x-request-id` 발급·전파
+- [x] `plugins/prisma.ts` — `app.prisma`로 붙이고, 정리는 `onClose` 훅에 (`server.ts`가 부르는 `app.close()`가 이 훅을 돕니다)
+- [x] `plugins/request-id.ts` — 응답에 `x-request-id`를 실어 보냅니다. 발급·전파는 `app.ts`의 `requestIdHeader`가 이미 합니다
 
 > **`app.ts`를 나누는 이유는 테스트입니다.** 통합 테스트가 서버를 안 띄우고 `app.inject()`로 요청합니다.
 >
@@ -238,8 +238,9 @@ export type Page = z.infer<typeof Page>;
 ```
 feat: Page 와 Workspace 데이터 모델          ← 완료
 refactor: 앱 조립과 부팅 분리                ← 완료
+feat: 첫 마이그레이션과 시드                 ← 완료
+feat: prisma 와 request-id 를 app 에 붙인다  ← 완료
 feat: 프론트와 합의한 페이지 계약 스키마
-feat: 첫 마이그레이션과 시드
 feat: 통일된 에러 처리
 feat: 페이지 생성과 조회
 feat: contract 스키마로 OpenAPI 문서 생성
