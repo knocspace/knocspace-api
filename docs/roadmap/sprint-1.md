@@ -189,6 +189,11 @@ PostgreSQL Table
 
 인증이 B4라 워크스페이스와 사용자는 `local-defaults.ts` 상수로 임시 고정합니다.
 
+시드는 `prisma.config.ts` 에 걸지 않고 `db:seed` 로 따로 돌립니다. `migrate` 때 자동으로 따라 도는 편이 편하지만, 완료 조건이 네 줄이라 시드가 언제 도는지 보이는 쪽을 택했습니다. 걸어야 하면 한 줄입니다.
+
+> 첫 `migrate dev` 는 drift 로 멈췄습니다. 폴더째 지운 옛 마이그레이션이 DB 기록에만 남아 있었고, 배포가 없으므로 `migrate reset` 으로 비우고 다시 만들었습니다.
+> **적용된 마이그레이션 폴더는 지우지 않습니다.** 왜인지는 [Prisma 핵심 개념 — 4번](../prisma-core-concepts.md)에 있습니다.
+
 ---
 
 ## 4. Fastify 서버 공통 설정
@@ -412,6 +417,7 @@ docs: README
 | 목록 필터(`?parentId=` 등)        | 필요해질 때       | 지금은 프론트가 전부 받아서 조립합니다. 조건이 필요한 화면이 아직 없습니다                             |
 | `GET /ready`                      | 배포가 생길 때    | 지금 이걸 호출할 오케스트레이터가 없습니다. `SELECT 1` 한 줄이라 그때 붙여도 5분입니다                 |
 | `baseVersion` 전달 방법           | B3                | 실제 저장 충돌을 붙여 보고 정합니다 ([계약 2번](api-contract.md#2-baseversion-을-어디로-보낼지--보류)) |
+| `AppError` 의 부가 데이터         | B3                | `version_conflict` 응답에 서버의 현재 `Page` 를 같이 담을 때 필요합니다. 지금은 쓰는 곳이 없습니다     |
 | `User` · `WorkspaceMember` · 인증 | B4                | 아래 도메인 범위                                                                                       |
 
 ### 도메인 범위
