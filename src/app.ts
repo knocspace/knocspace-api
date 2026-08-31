@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import { config } from './config.js';
+import { registerErrorHandler } from './plugins/error-handler.js';
 import { registerPrisma } from './plugins/prisma.js';
 import { registerRequestId } from './plugins/request-id.js';
 
@@ -25,6 +26,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   registerRequestId(app);
+  registerErrorHandler(app);
   registerPrisma(app);
 
   await app.register(cors, { origin: config.corsOrigins });
