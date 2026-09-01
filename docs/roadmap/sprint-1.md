@@ -449,6 +449,8 @@ db:seed
 npm run dev
 ```
 
+> Docker 를 쓸 수 없는 환경이면 `db:up` 자리에서 역할·DB 를 직접 만듭니다 — [Docker 없이 로컬 Postgres](../local-postgres.md). 나머지 단계는 같습니다.
+
 - [ ] `POST /pages`로 만든 페이지가 `GET /pages`와 `GET /pages/:id` 양쪽에 나온다
 
 **계약이 하나다**
