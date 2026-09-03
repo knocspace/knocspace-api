@@ -98,6 +98,7 @@ F1 ─ F2 ─ F3 ────────► F4 ───────► F5 ─ 
 | [백엔드 범위](docs/roadmap/scope.md) | "이건 지금 만드나?" 판단할 때 |
 | [서버 구조](docs/roadmap/architecture.md) | 파일을 어디에 만들지 정할 때 |
 | [API 계약](docs/roadmap/api-contract.md) | 엔드포인트를 만들거나 고치기 전에 (항상) |
+| [Page URL · API Path](docs/roadmap/page-routing.md) | 페이지 경로와 `Page.id` 형식을 정할 때 |
 | [B1](docs/roadmap/sprint-1.md) ~ [B4](docs/roadmap/sprint-4.md) | 해당 스프린트 시작할 때 |
 | [B5~B9 개요](docs/roadmap/later-sprints.md) | 먼 계획을 볼 때 |
 | [공통 규칙과 리스크](docs/roadmap/conventions.md) | 스프린트를 끝내기 전에 |

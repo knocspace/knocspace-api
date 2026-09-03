@@ -101,7 +101,7 @@ prisma/schema.prisma
 이번에는 `Page`, `Workspace` 두 모델만 정의합니다. **Prisma를 먼저 굳히고 zod를 뒤에 맞춥니다.**
 
 - [x] `Page` `Workspace` 두 모델만
-- [x] `Page.id` → `String @id` — 클라이언트가 만든 id를 그대로 씁니다
+- [x] `Page.id` → `String @id` — 클라이언트가 만든 UUID를 그대로 씁니다. `@default` 를 두지 않습니다
 - [x] `content` → `Json`
 - [x] `version` → `Int @default(1)`
 - [x] `icon` → nullable
@@ -133,7 +133,7 @@ src/contract/
 만들 계약:
 
 - [ ] `PageSummary` · `Page` · `BlockDoc` · `CreatePageInput`
-- [ ] `id`는 `[A-Za-z0-9_-]{1,64}` — 클라이언트가 만든 값이 URL·로그에 그대로 들어갑니다
+- [ ] `id`는 UUID(`z.uuid()`) — 하이픈 있는 정규형만 받습니다. 근거는 [Page URL · API Path](page-routing.md)
 - [ ] `src/contract/index.ts` — 여기서만 밖으로 내보냅니다
 - [ ] 프론트 `src/types/api.ts`에 확정 사항 반영 — **같은 날에**
 

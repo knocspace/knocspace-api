@@ -123,7 +123,7 @@ Workspace  1 ── n  Page  ── self(parentId)
 
 | 테이블 | 눈여겨볼 점 |
 |---|---|
-| `Page.id` | 클라이언트가 만든 문자열을 그대로 PK로 씁니다 |
+| `Page.id` | 클라이언트가 만든 UUID를 그대로 PK로 씁니다 |
 | `Page.content` | `Jsonb`. 서버는 열어보지 않습니다 |
 | `Page.version` | 저장할 때마다 +1 |
 | `Page.deletedAt` | soft delete. 조회는 전부 이 조건이 붙습니다 (B2부터) |

@@ -31,16 +31,18 @@ export type PageSummary = z.infer<typeof PageSummary>;
 | 기본 경로 | `/api/v1` |
 | 형식 | JSON. 요청·응답 모두 `application/json` |
 | 날짜 | ISO-8601 UTC, `Z` 로 끝남 (`2026-08-24T01:23:45.678Z`) |
-| id | 문자열. 클라이언트가 만들어 보냅니다. 서버는 형식을 강제하지 않고 `[A-Za-z0-9_-]{1,64}` 만 확인합니다 |
+| id | UUID. 클라이언트가 만들어 보냅니다. 서버는 하이픈 있는 정규형만 받습니다 (`z.uuid()`) |
 | 인증 | `Authorization: Bearer <accessToken>` (B4부터) |
 | 요청 추적 | 모든 응답에 `x-request-id` |
+
+id 가 UUID 인 근거와 브라우저 URL 이 이걸 어떻게 쓰는지는 [Page URL · API Path 설계](page-routing.md)에 있습니다. **만드는 쪽은 계속 클라이언트입니다** — 아래 `POST /pages` 의 멱등 규칙과 프론트의 낙관적 생성이 id 를 미리 아는 것을 전제로 합니다.
 
 ### 성공 응답
 
 **봉투(envelope)를 씌우지 않습니다.** 리소스를 그대로 돌려줍니다.
 
 ```json
-{ "id": "p_a1", "title": "회의록", "version": 3, ... }
+{ "id": "be633bf1-dfa0-436d-b259-571129a590e5", "title": "회의록", "version": 3, ... }
 ```
 
 목록은 배열 그대로입니다. 페이지네이션이 필요해지는 곳(B6 행 조회, B7 검색)만 `{ items, nextCursor }`를 씁니다.
